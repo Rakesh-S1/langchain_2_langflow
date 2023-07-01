@@ -13,12 +13,19 @@ from langflow.utils.util import get_base_classes
 #     "TextRequestsWrapper": ['memory', 'llm', 'prompt'],
 # }
 
-vertex_classes = ['PromptTemplate', 'OpenAI', 'TextRequestsWrapper', 'JsonSpec', 'JsonToolkit', 'create_json_agent',
-                  'AgentExecutor']
+vertex_classes = [
+    "PromptTemplate",
+    "OpenAI",
+    "TextRequestsWrapper",
+    "JsonSpec",
+    "JsonToolkit",
+    "create_json_agent",
+    "AgentExecutor",
+]
 
 
 def create_vertex(vertex):
-    """ This function is to create dictionary of all the inputs in an
+    """This function is to create dictionary of all the inputs in an
     instance in required format"""
     vertex_key = type(vertex).__name__
     parameters_dict = {}
@@ -71,8 +78,8 @@ def create_vertex(vertex):
         # # check it should have shown in flow or not
         try:
             if i[0] in kwargs:
-                temp['show'] = True
-                temp['required'] = True
+                temp["show"] = True
+                temp["required"] = True
 
         except:
             pass
@@ -101,8 +108,8 @@ def update_all_info(vertex, vertex_key, parameter_dict, coordinates):
     vertex_all_info["data"]["node"]["base_classes"] = base_classes
     vertex_all_info["data"]["id"] = vertex_id
 
-    vertex_all_info['position']['x'] = coordinates[0]
-    vertex_all_info['position']['y'] = coordinates[1]
+    vertex_all_info["position"]["x"] = coordinates[0]
+    vertex_all_info["position"]["y"] = coordinates[1]
 
     # create specific info needed for edges creations
     vertex_edge_info = [vertex_key, vertex_id] + base_classes
@@ -111,14 +118,15 @@ def update_all_info(vertex, vertex_key, parameter_dict, coordinates):
 
 
 def update_baseflow_vertexes(base_flow, all_instances):
-    """ Update the vertex_all_info for all instances """
+    """Update the vertex_all_info for all instances"""
     # get the coordinates for the components
     coordinates = allocate_components(len(all_instances))
     vertex_edge_info_dict = {}
     for index, vertex in enumerate(all_instances):
         vertex_key, parameter_dict = create_vertex(vertex)
         vertex_all_info_json, vertex_edge_info = update_all_info(
-            vertex, vertex_key, parameter_dict, coordinates[index])
+            vertex, vertex_key, parameter_dict, coordinates[index]
+        )
         # create the dict file for edge info
         vertex_edge_info_dict[vertex_key] = vertex_edge_info
         # update base flow nodes
@@ -128,16 +136,16 @@ def update_baseflow_vertexes(base_flow, all_instances):
 
 
 def allocate_components(num_components):
-    """ Allocate the vertexes """
+    """Allocate the vertexes"""
     components = []
     n_nodes = 4
     shift = num_components // n_nodes
     init_x = 400
     init_y = 400
-    for s in range(shift+1):
+    for s in range(shift + 1):
         for i in range(n_nodes):
-            angle = i * (2*math.pi / n_nodes)
-            x = (s-1) * 30 + init_x * math.cos(math.pi-angle)
+            angle = i * (2 * math.pi / n_nodes)
+            x = (s - 1) * 30 + init_x * math.cos(math.pi - angle)
             y = init_y * math.sin(angle)
             components.append((x, y))
 
@@ -146,17 +154,16 @@ def allocate_components(num_components):
 
 def generate_random_string(length=5):
     lowercase_chars = string.ascii_lowercase + string.digits
-    random_string = ''.join(random.choice(lowercase_chars)
-                            for _ in range(length))
+    random_string = "".join(random.choice(lowercase_chars) for _ in range(length))
     return random_string
 
 
 def is_instance_from_langchain(class_obj, module_name):
     try:
-        class_module_parts = class_obj.__module__.split('.')
-        module_parts = module_name.split('.')
+        class_module_parts = class_obj.__module__.split(".")
+        module_parts = module_name.split(".")
 
-    # Compare the last parts of the module names
+        # Compare the last parts of the module names
         if module_name in class_module_parts:
             return True
         else:
