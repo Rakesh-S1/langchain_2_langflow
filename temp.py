@@ -1,7 +1,8 @@
 from langflow.interface.types import build_langchain_types_dict
 import uuid
 import string
-import random, math
+import random
+import math
 from inspect import isclass
 from get_vertexes import is_instance_from_langchain
 from pprint import pprint
@@ -11,7 +12,8 @@ all_vertex_template = build_langchain_types_dict()
 
 def generate_random_string(length=5):
     lowercase_chars = string.ascii_lowercase + string.digits
-    random_string = "".join(random.choice(lowercase_chars) for _ in range(length))
+    random_string = "".join(random.choice(lowercase_chars)
+                            for _ in range(length))
     return random_string
 
 

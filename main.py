@@ -6,6 +6,7 @@ import langchain
 from get_vertexes import is_instance_from_langchain
 from temp import get_template, get_base_class, allocate_components
 from pprint import pprint
+import streamlit as st
 
 # input file path
 python_file_path = "input.py"
@@ -34,6 +35,17 @@ for name, obj in custom_module.__dict__.items():
     if is_instance_from_langchain(type(obj), "langchain") and not isinstance(obj, type):
         all_instances.append(obj)
 
+def streamlit_vertex_display():
+    st.title("Vertices")
+    for i in all_instances:
+        if i.__class__.__name__ == "AgentExecutor":
+            all_agents = dir(langchain.agents)
+            for j in function_list:
+                if j.__name__ in all_agents:
+                    func_name = j.__name__.split("_")
+                    func_name = "".join(func_name[1:]).title()
+                    st.write(f"{i.__class__.__name__} ({func_name})")
+        else : st.write(f"{i.__class__.__name__}")
 # base json
 base_class = get_base_class()
 postion = allocate_components(len(all_instances))

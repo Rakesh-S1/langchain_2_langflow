@@ -8,7 +8,7 @@ def main():
     <style>
     body {
         font-family: "Helvetica", sans-serif;
-    }
+    }s
     </style>
     """,
         unsafe_allow_html=True,
@@ -24,6 +24,7 @@ def main():
             temp_file_path = temp_file.name
             st.code(temp_file_path)
         run_main()
+        st.redirect("http://127.0.0.1:7860/")
 
 
 def run_main():
