@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-from main import vertex_st_data
+
 
 
 def redirect_to_url(url):
@@ -42,7 +42,7 @@ def run_main():
 
     st.title("Download JSON File")
     file = "converted.json"
-    vertex_st_data()
+
     if os.path.isfile(file):
         st.download_button(
             label="Download JSON",
