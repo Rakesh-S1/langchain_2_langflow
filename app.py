@@ -1,5 +1,12 @@
-import streamlit as st
 import os
+import streamlit as st
+from main import vertex_st_data
+
+
+def redirect_to_url(url):
+    js = f"window.location.href='{url}'"
+    html = f"<script>{js}</script>"
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def main():
@@ -24,7 +31,8 @@ def main():
             temp_file_path = temp_file.name
             st.code(temp_file_path)
         run_main()
-        st.redirect("http://127.0.0.1:7860/")
+        if st.button("Langflow"):
+            st.markdown("[langflow](https://huggingface.co/spaces/Logspace/LangFlow)")
 
 
 def run_main():
@@ -34,6 +42,7 @@ def run_main():
 
     st.title("Download JSON File")
     file = "converted.json"
+    vertex_st_data()
     if os.path.isfile(file):
         st.download_button(
             label="Download JSON",
@@ -47,5 +56,3 @@ def run_main():
 
 if __name__ == "__main__":
     main()
-
-
