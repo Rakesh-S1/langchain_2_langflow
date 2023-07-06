@@ -74,9 +74,12 @@ function_list1 = copy.copy(function_list)
 for i, y in zip(all_instances, postion):
     lc_kwargs = None
     try:
-        if i._lc_kwargs: lc_kwargs = i._lc_kwargs
-        elif i.lc_kwargs: lc_kwargs = i._lc_kwargs
-        else:pass
+        if i._lc_kwargs:
+            lc_kwargs = i._lc_kwargs
+        elif i.lc_kwargs:
+            lc_kwargs = i._lc_kwargs
+        else:
+            pass
     except:
         pass
     # Agents
@@ -174,13 +177,8 @@ for vertex in all_instances:
 edges = get_edge(all_vertex_info)
 base_class["data"]["edges"] = edges
 # pprint(all_vertex_info, sort_dicts=False)
-# for i in all_instances:
-#     class_annotations = i.__annotations__
 
 
-# # Print the argument names and type names
-#     for arg_name, arg_type in class_annotations.items():
-#         print(f"{arg_name} | Type: {arg_type}")
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):

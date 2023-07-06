@@ -59,19 +59,24 @@ def get_vertex_agent_arg(vertex, vertices, function_list):
                             {arg_name: val_type}
                         )
 
+
 def target_handle_base_type(vertex_name, val):
-    return(all_vertex_template[val['component_name']][val['vertex_name']]['template'][vertex_name]['type'])
-    
+    return all_vertex_template[val["component_name"]][val["vertex_name"]]["template"][
+        vertex_name
+    ]["type"]
+
+
 def get_target_handle(child, key, val):
     target_handle = ""
-    base_class = all_vertex_info[child]['base_class']
+    base_class = all_vertex_info[child]["base_class"]
 
-    for arg in val['args']:
-        for key1,value in arg.items():
+    for arg in val["args"]:
+        for key1, value in arg.items():
             if value.__name__ in base_class:
                 target_handle = f"{target_handle_base_type(key1, val)}|{key1}"
     target_handle = f"{target_handle}|{key}"
     return target_handle
+
 
 def get_edge(all_vertex_info):
     edges_data = []
@@ -94,9 +99,7 @@ def get_edge(all_vertex_info):
                     "sourceHandle"
                 ] = f"{all_vertex_info[child]['vertex'].__class__.__name__}|{child}|{source_baseclass}"
                 edge["target"] = key
-                edge[
-                    "targetHandle"
-                ] = f"{get_target_handle(child, key, val)}"
+                edge["targetHandle"] = f"{get_target_handle(child, key, val)}"
                 edges_data.append(edge)
 
     return edges_data
@@ -208,7 +211,7 @@ def get_template(
                     "vertex_id": vertex_id,
                     "component_name": component_name,
                     "vertex": vertex,
-                    "base_class": dict_data['base_classes'],
+                    "base_class": dict_data["base_classes"],
                     "children": [],
                     "args": [],
                 }
