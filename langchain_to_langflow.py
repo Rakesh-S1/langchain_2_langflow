@@ -9,7 +9,6 @@ from pprint import pprint
 from langchain.agents import *
 from inspect import isclass, signature
 from langflow.utils.util import get_base_classes
-from get_vertexes import is_instance_from_langchain
 from langflow.interface.types import build_langchain_types_dict
 
 
