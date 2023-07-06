@@ -1,9 +1,23 @@
 from typing import Any
 import streamlit as st
 from pprint import pprint
-from get_vertexes import is_instance_from_langchain
-import json, copy, inspect, langchain, importlib.util
-from temp import get_template, get_base_class, allocate_components, get_children,all_vertex_info
+
+import json
+import copy
+import inspect
+import langchain
+import importlib.util
+from langchain_to_langflow import (
+    get_template,
+    get_base_class,
+    allocate_components,
+    get_children,
+    get_edge,
+    get_vertex_agent_arg,
+    get_vertex_arguments,
+    is_instance_from_langchain,
+    all_vertex_info,
+)
 
 
 # input file path
@@ -60,12 +74,13 @@ function_list1 = copy.copy(function_list)
 for i, y in zip(all_instances, postion):
     lc_kwargs = None
     try:
-        if i._lc_kwargs:
-            lc_kwargs = i._lc_kwargs
+        if i._lc_kwargs: lc_kwargs = i._lc_kwargs
+        elif i.lc_kwargs: lc_kwargs = i._lc_kwargs
+        else:pass
     except:
         pass
     # Agents
-    # print(postion[all_instances.index(i)])
+
     if i.__class__.__name__ == "ZeroShotAgent":
         base_class["data"]["nodes"].append(
             get_template("agents", "ZeroShotAgent", y, lc_kwargs, i)
@@ -81,9 +96,6 @@ for i, y in zip(all_instances, postion):
                 )
                 function_list.remove(j)
                 break
-                # continue
-                # agents(j.__name__)
-                # new_agent(i.__class__.__name__)
 
     # Chains
     if i.__module__.startswith("langchain.chains"):
@@ -91,82 +103,84 @@ for i, y in zip(all_instances, postion):
             get_template("chains", i.__class__.__name__, y, lc_kwargs, i)
         )
 
-        # if False: base_class['data']['nodes'].append(get_template('chains','ZeroShotAgent')
     # Loaders
 
     elif i.__module__.startswith("langchain.document_loaders"):
         base_class["data"]["nodes"].append(
             get_template("documentloaders", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # print(i.__module__, inspect.getfile(i.__class__,y, lc_kwargs, i))
-        # if False: base_class['data']['nodes'].append(get_template('documentloaders','ZeroShotAgent')
+
     # Embeddings
     elif i.__module__.startswith("langchain.embeddings"):
         base_class["data"]["nodes"].append(
             get_template("embeddings", i.__class__.__name__, y, lc_kwargs, i)
         )
-    #     print(i.__class__)
-    # if False: base_class['data']['nodes'].append(get_template('embeddings',i.__class__.__name__)
     # LLms
     elif i.__module__.startswith("langchain.llms"):
         base_class["data"]["nodes"].append(
             get_template("llms", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('llms',i.__class__.__name__)
     # Memories
     elif i.__module__.startswith("langchain.memory"):
         base_class["data"]["nodes"].append(
             get_template("memories", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('memories',i.__class__.__name__)
     # Prompts
     elif i.__module__.startswith("langchain.prompts"):
         base_class["data"]["nodes"].append(
             get_template("prompts", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('prompts',i.__class__.__name__)
     # TextSplitters
     elif i.__module__.startswith("langchain.text_splitter"):
         base_class["data"]["nodes"].append(
             get_template("textsplitters", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('textsplitters',i.__class__.__name__)
     # ToolKits
     elif i.__module__.startswith("langchain.agents.agent_toolkits"):
         base_class["data"]["nodes"].append(
             get_template("toolkits", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('toolkits',i.__class__.__name__)
     # Tools
     elif i.__module__.startswith("langchain.tools"):
         base_class["data"]["nodes"].append(
             get_template("tools", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('tools',i.__class__.__name__)
     # Utilities
     elif i.__module__.startswith("langchain.utilities"):
         base_class["data"]["nodes"].append(
             get_template("utilities", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('utilities',i.__class__.__name__)
     # Vectors Stores
     elif i.__module__.startswith("langchain.vectorstores"):
         base_class["data"]["nodes"].append(
             get_template("vectorstores", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('vectorstores',i.__class__.__name__)
     # Wrappers
     elif i.__module__.startswith("langchain.requests"):
         base_class["data"]["nodes"].append(
             get_template("wrappers", i.__class__.__name__, y, lc_kwargs, i)
         )
-        # if False: base_class['data']['nodes'].append(get_template('wrappers',i.__class__.__name__)
 
     else:
         pass
 
 get_children(all_instances, function_list1)
-pprint(all_vertex_info)
+
+for vertex in all_instances:
+    if vertex.__class__.__name__ == "AgentExecutor":
+        get_vertex_agent_arg(vertex, all_instances, function_list1)
+    else:
+        get_vertex_arguments(vertex, all_instances)
+edges = get_edge(all_vertex_info)
+base_class["data"]["edges"] = edges
+# pprint(all_vertex_info, sort_dicts=False)
+# for i in all_instances:
+#     class_annotations = i.__annotations__
+
+
+# # Print the argument names and type names
+#     for arg_name, arg_type in class_annotations.items():
+#         print(f"{arg_name} | Type: {arg_type}")
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, set):
@@ -178,4 +192,3 @@ with open("converted.json", "w") as flow:
     json.dump(base_class, flow, cls=SetEncoder)
 
 # pprint(base_class, sort_dicts=False)
-

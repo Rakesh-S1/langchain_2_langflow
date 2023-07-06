@@ -2,7 +2,6 @@ import os
 import streamlit as st
 
 
-
 def redirect_to_url(url):
     js = f"window.location.href='{url}'"
     html = f"<script>{js}</script>"
