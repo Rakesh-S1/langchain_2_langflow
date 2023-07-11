@@ -40,7 +40,7 @@ def main():
         run_main()
         download_json()
         if st.button("Langflow"):
-            st.markdown("[langflow](https://huggingface.co/spaces/Logspace/LangFlow)")
+            st.markdown("[langflow](https://127.0.0.1/7860/)")
 
 
 @st.cache_resource
