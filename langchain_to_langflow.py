@@ -9,6 +9,8 @@ from langchain.agents import *
 from inspect import signature
 from langflow.utils.util import get_base_classes
 from langflow.interface.types import build_langchain_types_dict
+import pandas as pd
+import streamlit as st
 
 all_vertex_template = build_langchain_types_dict()
 all_vertex_info = {}
@@ -134,13 +136,13 @@ def get_child_vertex(child, vertex, vertices):
     for i in child:
         if check_is_child(i[1], vertices):
             if (
-                get_vertex_data(i[1])
-                not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                    get_vertex_data(i[1])
+                    not in all_vertex_info[get_vertex_data(vertex)]["children"]
             ):
                 all_vertex_info[get_vertex_data(vertex)]["children"].append(
                     get_vertex_data(i[1])
                 )
-                
+
                 all_vertex_info[get_vertex_data(vertex)]["args"].append(
                     {i[0]: type(i[1])}
                 )
@@ -179,36 +181,36 @@ def get_children(vertices, function_list=None):
             for child in vertex:
                 try:
                     if (
-                        child[1] in vertices
-                        and get_vertex_data(child[1])
-                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                            child[1] in vertices
+                            and get_vertex_data(child[1])
+                            not in all_vertex_info[get_vertex_data(vertex)]["children"]
                     ):
                         parent_id = get_vertex_data(vertex)
                         all_vertex_info[get_vertex_data(vertex)]["children"].append(
                             get_vertex_data(child[1])
                         )
                     elif (
-                        child[1]
-                        and not check_is_child(child[1], vertices)
-                        and is_instance_from_langchain(child[1], "langchain")
+                            child[1]
+                            and not check_is_child(child[1], vertices)
+                            and is_instance_from_langchain(child[1], "langchain")
                     ):
                         get_child_vertex(child[1], vertex, vertices)
 
                 except:
                     if (
-                        child[1]
-                        and check_is_child(child[1], vertices)
-                        and child[1]
-                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                            child[1]
+                            and check_is_child(child[1], vertices)
+                            and child[1]
+                            not in all_vertex_info[get_vertex_data(vertex)]["children"]
                     ):
                         all_vertex_info[get_vertex_data(vertex)]["children"].append(
                             get_vertex_data(child[1])
                         )
 
                     elif (
-                        child[1]
-                        and not check_is_child(child[1], vertices)
-                        and is_instance_from_langchain(child[1], "langchain")
+                            child[1]
+                            and not check_is_child(child[1], vertices)
+                            and is_instance_from_langchain(child[1], "langchain")
                     ):
                         get_child_vertex(child[1], vertex, vertices)
 
@@ -231,7 +233,7 @@ def get_base_class():
 
 
 def get_template(
-    component_name: str, vertex_name: str, position, lc_kwargs=None, vertex=None
+        component_name: str, vertex_name: str, position, lc_kwargs=None, vertex=None
 ) -> dict | None:
     try:
         for key in all_vertex_template[component_name]:
@@ -291,3 +293,41 @@ def allocate_components(num_components):
             components.append((x, y))
 
     return components[:num_components]
+
+
+def print_vertex_and_edges(edges, all_instance, function_list1):
+    vertices = []
+    edge_data = []
+
+    for i in all_instance:
+        if i.__class__.__name__ == "AgentExecutor":
+            all_agents = dir(langchain.agents)
+            for j in function_list1:
+                if j.__name__ in all_agents:
+                    func_name = j.__name__.split("_")
+                    func_name = "".join(func_name[1:]).title()
+                    vertices.append(f"{i.__class__.__name__} ({func_name})")
+        else:
+            vertices.append(f"{i.__class__.__name__}")
+
+    for edge in edges:
+        edge_data.append(f"{edge['source']}-->{edge['target']}")
+
+    # df = pd.DataFrame(data)
+    # st.table(df)
+    max_length = max(len(vertices), len(edge_data))
+    # vertex_df = pd.DataFrame(vertices, columns=['Vertices'])
+    # edge_df = pd.DataFrame(edge_data, columns=['Edge'])
+    vertices += [''] * (max_length - len(vertices))
+    edge_data += [''] * (max_length - len(edge_data))
+
+    data = {
+        'Vertices': vertices,
+        'Edges': edge_data
+    }
+
+    # Create a pandas DataFrame
+    df = pd.DataFrame(data)
+
+    # Display the DataFrame as a table
+    st.table(df)

@@ -1,4 +1,4 @@
-import os
+import os, io
 import streamlit as st
 
 
@@ -14,7 +14,13 @@ def main():
     <style>
     body {
         font-family: "Helvetica", sans-serif;
-    }s
+    },
+    .file-upload-btn .stFileUploader > div:first-child {
+        padding: 0.5rem 0.75rem;
+        font-size: 14px;
+        line-height: 1.5;
+        border-radius: 0.2rem;
+    }
     </style>
     """,
         unsafe_allow_html=True,
@@ -23,22 +29,28 @@ def main():
     st.title("Langchain to Langflow")
     input_file = st.file_uploader("Upload your Langchain File", type="py")
     if input_file is not None:
-        data = input_file.read()
-        # st.code(data)
-        with open("input1.py", "w") as temp_file:
-            temp_file.write(data.decode("utf-8"))
-            temp_file_path = temp_file.name
+        with io.TextIOWrapper(input_file, encoding="utf-8", newline="") as file_wrapper:
+            file_contents = file_wrapper.read()
+
+        # Create a new file with the same contents
+        with open("input1.py", "w", newline="") as new_file:
+            new_file.write(file_contents)
+            temp_file_path = new_file.name
             st.code(temp_file_path)
         run_main()
+        download_json()
         if st.button("Langflow"):
             st.markdown("[langflow](https://huggingface.co/spaces/Logspace/LangFlow)")
 
 
+@st.cache_resource
 def run_main():
     with open("main.py", "r") as file:
         file_contents = file.read()
     exec(file_contents)
 
+
+def download_json():
     st.title("Download JSON File")
     file = "converted.json"
 

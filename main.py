@@ -5,6 +5,7 @@ import inspect
 import langchain
 import importlib.util
 import streamlit as st
+import pandas as pd
 from langchain_to_langflow import (
     get_template,
     get_base_class,
@@ -15,10 +16,11 @@ from langchain_to_langflow import (
     get_vertex_arguments,
     is_instance_from_langchain,
     all_vertex_info,
+    print_vertex_and_edges
 )
 
 # input file path
-PYTHON_FILE_PATH = "input.py"
+PYTHON_FILE_PATH = "input1.py"
 
 
 # get classes and instances from the input file
@@ -158,30 +160,10 @@ for vertex in all_instances:
         get_vertex_arguments(vertex, all_instances)
 edges = get_edge(all_vertex_info)
 
-try:
-    st.title("Vertices")
-    for i in all_instances:
-        if i.__class__.__name__ == "AgentExecutor":
-            all_agents = dir(langchain.agents)
-            for j in function_list:
-                if j.__name__ in all_agents:
-                    func_name = j.__name__.split("_")
-                    func_name = "".join(func_name[1:]).title()
-                    st.write(f"{i.__class__.__name__} ({func_name})")
-        else:
-            st.write(f"{i.__class__.__name__}")
-except:
-    print("")
-
-try:
-    st.title("Edges")
-    for i in edges:
-        st.write(f'{i["source"]}')
-except:pass
 
 base_class["data"]["edges"] = edges
 # pprint(all_vertex_info, sort_dicts=False)
-
+print_vertex_and_edges(edges, all_instances, function_list1)
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -192,4 +174,4 @@ class SetEncoder(json.JSONEncoder):
 
 with open("converted.json", "w") as flow:
     json.dump(base_class, flow, cls=SetEncoder)
-pprint(base_class, sort_dicts=False)
+# pprint(base_class, sort_dicts=False)
