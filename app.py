@@ -9,6 +9,7 @@ def redirect_to_url(url):
 
 
 def main():
+    # st.set_page_config(layout="wide")
     st.markdown(
         """
     <style>
@@ -27,7 +28,9 @@ def main():
     )
 
     st.title("Langchain to Langflow")
-    input_file = st.file_uploader("Upload your Langchain File", type="py")
+    left_column, right_column = st.columns(2)
+    with left_column:
+        input_file = st.file_uploader("Upload your Langchain File", type="py")
     if input_file is not None:
         with io.TextIOWrapper(input_file, encoding="utf-8", newline="") as file_wrapper:
             file_contents = file_wrapper.read()
@@ -36,7 +39,14 @@ def main():
         with open("input1.py", "w", newline="") as new_file:
             new_file.write(file_contents)
             temp_file_path = new_file.name
-            st.code(temp_file_path)
+            with right_column:
+                st.write('')
+                st.write('')
+                st.code(f"File Name: {input_file.name}")
+                st.code(f"File Size: {len(file_contents)} bytes")
+        container = st.sidebar.container()
+        with container:
+            st.text_area("File Contents", file_contents, height=400)
         run_main()
         download_json()
         if st.button("Langflow"):
