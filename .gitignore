@@ -14,3 +14,8 @@ vertex.py
 logs
 edges.py
 get_vertexex.py
+Pipfile
+requirements.txt
+.idea/.gitignore
+.vs
+.idea

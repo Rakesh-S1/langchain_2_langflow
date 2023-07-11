@@ -1,12 +1,10 @@
-from typing import Any
-import streamlit as st
 from pprint import pprint
-
 import json
 import copy
 import inspect
 import langchain
 import importlib.util
+import streamlit as st
 from langchain_to_langflow import (
     get_template,
     get_base_class,
@@ -19,14 +17,13 @@ from langchain_to_langflow import (
     all_vertex_info,
 )
 
-
 # input file path
-python_file_path = "input.py"
+PYTHON_FILE_PATH = "input.py"
 
 
 # get classes and instances from the input file
 module_name = "custom_module"
-spec = importlib.util.spec_from_file_location(module_name, python_file_path)
+spec = importlib.util.spec_from_file_location(module_name, PYTHON_FILE_PATH)
 custom_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(custom_module)
 
@@ -51,20 +48,6 @@ for name, obj in custom_module.__dict__.items():
         all_instances.append(obj)
 
 
-try:
-    st.title("Vertices")
-    for i in all_instances:
-        if i.__class__.__name__ == "AgentExecutor":
-            all_agents = dir(langchain.agents)
-            for j in function_list:
-                if j.__name__ in all_agents:
-                    func_name = j.__name__.split("_")
-                    func_name = "".join(func_name[1:]).title()
-                    st.write(f"{i.__class__.__name__} ({func_name})")
-        else:
-            st.write(f"{i.__class__.__name__}")
-except:
-    print("")
 
 
 # base json
@@ -77,7 +60,7 @@ for i, y in zip(all_instances, postion):
         if i._lc_kwargs:
             lc_kwargs = i._lc_kwargs
         elif i.lc_kwargs:
-            lc_kwargs = i._lc_kwargs
+            lc_kwargs = i.lc_kwargs
         else:
             pass
     except:
@@ -166,7 +149,6 @@ for i, y in zip(all_instances, postion):
 
     else:
         pass
-
 get_children(all_instances, function_list1)
 
 for vertex in all_instances:
@@ -175,6 +157,28 @@ for vertex in all_instances:
     else:
         get_vertex_arguments(vertex, all_instances)
 edges = get_edge(all_vertex_info)
+
+try:
+    st.title("Vertices")
+    for i in all_instances:
+        if i.__class__.__name__ == "AgentExecutor":
+            all_agents = dir(langchain.agents)
+            for j in function_list:
+                if j.__name__ in all_agents:
+                    func_name = j.__name__.split("_")
+                    func_name = "".join(func_name[1:]).title()
+                    st.write(f"{i.__class__.__name__} ({func_name})")
+        else:
+            st.write(f"{i.__class__.__name__}")
+except:
+    print("")
+
+try:
+    st.title("Edges")
+    for i in edges:
+        st.write(f'{i["source"]}')
+except:pass
+
 base_class["data"]["edges"] = edges
 # pprint(all_vertex_info, sort_dicts=False)
 
@@ -188,5 +192,4 @@ class SetEncoder(json.JSONEncoder):
 
 with open("converted.json", "w") as flow:
     json.dump(base_class, flow, cls=SetEncoder)
-
-# pprint(base_class, sort_dicts=False)
+pprint(base_class, sort_dicts=False)

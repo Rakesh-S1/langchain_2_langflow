@@ -3,14 +3,12 @@ import uuid
 import string
 import random
 import typing
-import inspect
 import langchain
 from pprint import pprint
 from langchain.agents import *
-from inspect import isclass, signature
+from inspect import signature
 from langflow.utils.util import get_base_classes
 from langflow.interface.types import build_langchain_types_dict
-
 
 all_vertex_template = build_langchain_types_dict()
 all_vertex_info = {}
@@ -19,8 +17,6 @@ all_vertex_info = {}
 def is_instance_from_langchain(class_obj, module_name):
     try:
         class_module_parts = class_obj.__module__.split(".")
-        module_parts = module_name.split(".")
-
         # Compare the last parts of the module names
         if module_name in class_module_parts:
             return True
@@ -35,6 +31,8 @@ def get_vertex_arguments(vertex, vertices):
         try:
             if val in vertices:
                 val_type = typing.get_type_hints(vertex.__class__)[key]
+                if typing.get_origin(val_type) is typing.Union:
+                    val_type = typing.get_args(val_type)[0]
                 all_vertex_info[get_vertex_data(vertex)]["args"].append({key: val_type})
         except:
             pass
@@ -84,7 +82,7 @@ def get_edge(all_vertex_info):
         if val["children"]:
             for child in val["children"]:
                 edge = {
-                    "source": "",
+                    "source": child,
                     "sourceHandle": "",
                     "target": "",
                     "targetHandle": "",
@@ -93,13 +91,13 @@ def get_edge(all_vertex_info):
                     "animated": False,
                     "id": "",
                 }
-                edge["source"] = child
                 source_baseclass = "|".join(all_vertex_info[child]["base_class"])
                 edge[
                     "sourceHandle"
                 ] = f"{all_vertex_info[child]['vertex'].__class__.__name__}|{child}|{source_baseclass}"
                 edge["target"] = key
                 edge["targetHandle"] = f"{get_target_handle(child, key, val)}"
+
                 edges_data.append(edge)
 
     return edges_data
@@ -132,6 +130,39 @@ def get_function_arg_type(function, all_instance) -> list:
     return edge
 
 
+def get_child_vertex(child, vertex, vertices):
+    for i in child:
+        if check_is_child(i[1], vertices):
+            if (
+                get_vertex_data(i[1])
+                not in all_vertex_info[get_vertex_data(vertex)]["children"]
+            ):
+                all_vertex_info[get_vertex_data(vertex)]["children"].append(
+                    get_vertex_data(i[1])
+                )
+                
+                all_vertex_info[get_vertex_data(vertex)]["args"].append(
+                    {i[0]: type(i[1])}
+                )
+        elif is_instance_from_langchain(i[1], "langchain"):
+            get_child_vertex(i[1], vertex, vertices)
+        elif isinstance(i[1], list) and len(i[1]) > 2:
+            for j in i[1]:
+                get_child_vertex(j, vertex, vertices)
+
+
+def check_is_child(child, parent):
+    if child:
+        for vertex in parent:
+            try:
+                if child == vertex:
+                    return True
+            except:
+                if child is vertex:
+                    return True
+    return False
+
+
 def get_children(vertices, function_list=None):
     for vertex in vertices:
         if vertex.__class__.__name__ == "AgentExecutor":
@@ -147,15 +178,39 @@ def get_children(vertices, function_list=None):
         else:
             for child in vertex:
                 try:
-                    if child[1] in vertices:
+                    if (
+                        child[1] in vertices
+                        and get_vertex_data(child[1])
+                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                    ):
                         parent_id = get_vertex_data(vertex)
                         all_vertex_info[get_vertex_data(vertex)]["children"].append(
                             get_vertex_data(child[1])
                         )
-                        # print(all_vertex_info[parent_id])
+                    elif (
+                        child[1]
+                        and not check_is_child(child[1], vertices)
+                        and is_instance_from_langchain(child[1], "langchain")
+                    ):
+                        get_child_vertex(child[1], vertex, vertices)
 
                 except:
-                    pass
+                    if (
+                        child[1]
+                        and check_is_child(child[1], vertices)
+                        and child[1]
+                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                    ):
+                        all_vertex_info[get_vertex_data(vertex)]["children"].append(
+                            get_vertex_data(child[1])
+                        )
+
+                    elif (
+                        child[1]
+                        and not check_is_child(child[1], vertices)
+                        and is_instance_from_langchain(child[1], "langchain")
+                    ):
+                        get_child_vertex(child[1], vertex, vertices)
 
 
 def generate_random_string(length=5):
@@ -173,16 +228,6 @@ def get_base_class():
         "id": id,
     }
     return base_data
-
-
-# def get_arg_type(vertex):
-#     if vertex.__class__.__name__.lower() != "agentexecutor":
-#         args = vertex.__dict__
-
-#         # Print the arguments
-#         print(vertex.__class__.__name__)
-#         for arg, value in args.items():
-#             print(f"{arg}: {value}")
 
 
 def get_template(
