@@ -1,6 +1,6 @@
 import os, io
 import streamlit as st
-
+import webbrowser
 
 def redirect_to_url(url):
     js = f"window.location.href='{url}'"
@@ -46,11 +46,9 @@ def main():
                 st.code(f"File Size: {len(file_contents)} bytes")
         container = st.sidebar.container()
         with container:
-            st.text_area("File Contents", file_contents, height=400)
+            st.text_area(f"{input_file.name}", file_contents, height=400, key="readonly_textarea", disabled=True)
         run_main()
         download_json()
-        if st.button("Langflow"):
-            st.markdown("[langflow](https://127.0.0.1/7860/)")
 
 
 @st.cache_resource
@@ -61,18 +59,39 @@ def run_main():
 
 
 def download_json():
-    st.title("Download JSON File")
+    st.markdown(
+        """
+    <style>
+    .stBlock {
+        flex: 0 0 70% !important;
+        max-width: 10% !important;
+    },
+    .title {
+        font-size: 20px;
+    }
+    </style>
+    
+    <h1 class="title">Download Json File</h1>
+    """,
+        unsafe_allow_html=True
+    )
     file = "converted.json"
 
-    if os.path.isfile(file):
-        st.download_button(
-            label="Download JSON",
-            data=open(file, "rb"),
-            file_name=file,
-            mime="application/json",
-        )
-    else:
-        st.write("JSON file not found.")
+    col1, col2 = st.columns([0.3,1])
+    with col1:
+        if os.path.isfile(file):
+            st.download_button(
+                label="Download JSON",
+                data=open(file, "rb"),
+                file_name=file,
+                mime="application/json",
+            )
+        else:
+            st.write("JSON file not found.")
+    with col2:
+        if st.button("Langflow"):
+            url = "https://localhost/7860/"
+            webbrowser.open_new_tab(url=url)
 
 
 if __name__ == "__main__":
