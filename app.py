@@ -90,7 +90,7 @@ def download_json():
             st.write("JSON file not found.")
     with col2:
         if st.button("Langflow"):
-            url = "https://localhost/7860/"
+            url = "http://137.135.90.38:7860/"
             webbrowser.open_new_tab(url=url)
 
 
