@@ -19,3 +19,4 @@ requirements.txt
 .idea/.gitignore
 .vs
 .idea
+examples

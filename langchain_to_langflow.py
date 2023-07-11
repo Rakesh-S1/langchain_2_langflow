@@ -136,8 +136,8 @@ def get_child_vertex(child, vertex, vertices):
     for i in child:
         if check_is_child(i[1], vertices):
             if (
-                    get_vertex_data(i[1])
-                    not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                get_vertex_data(i[1])
+                not in all_vertex_info[get_vertex_data(vertex)]["children"]
             ):
                 all_vertex_info[get_vertex_data(vertex)]["children"].append(
                     get_vertex_data(i[1])
@@ -181,36 +181,36 @@ def get_children(vertices, function_list=None):
             for child in vertex:
                 try:
                     if (
-                            child[1] in vertices
-                            and get_vertex_data(child[1])
-                            not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                        child[1] in vertices
+                        and get_vertex_data(child[1])
+                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
                     ):
                         parent_id = get_vertex_data(vertex)
                         all_vertex_info[get_vertex_data(vertex)]["children"].append(
                             get_vertex_data(child[1])
                         )
                     elif (
-                            child[1]
-                            and not check_is_child(child[1], vertices)
-                            and is_instance_from_langchain(child[1], "langchain")
+                        child[1]
+                        and not check_is_child(child[1], vertices)
+                        and is_instance_from_langchain(child[1], "langchain")
                     ):
                         get_child_vertex(child[1], vertex, vertices)
 
                 except:
                     if (
-                            child[1]
-                            and check_is_child(child[1], vertices)
-                            and child[1]
-                            not in all_vertex_info[get_vertex_data(vertex)]["children"]
+                        child[1]
+                        and check_is_child(child[1], vertices)
+                        and child[1]
+                        not in all_vertex_info[get_vertex_data(vertex)]["children"]
                     ):
                         all_vertex_info[get_vertex_data(vertex)]["children"].append(
                             get_vertex_data(child[1])
                         )
 
                     elif (
-                            child[1]
-                            and not check_is_child(child[1], vertices)
-                            and is_instance_from_langchain(child[1], "langchain")
+                        child[1]
+                        and not check_is_child(child[1], vertices)
+                        and is_instance_from_langchain(child[1], "langchain")
                     ):
                         get_child_vertex(child[1], vertex, vertices)
 
@@ -233,7 +233,7 @@ def get_base_class():
 
 
 def get_template(
-        component_name: str, vertex_name: str, position, lc_kwargs=None, vertex=None
+    component_name: str, vertex_name: str, position, lc_kwargs=None, vertex=None
 ) -> dict | None:
     try:
         for key in all_vertex_template[component_name]:
@@ -318,13 +318,10 @@ def print_vertex_and_edges(edges, all_instance, function_list1):
     max_length = max(len(vertices), len(edge_data))
     # vertex_df = pd.DataFrame(vertices, columns=['Vertices'])
     # edge_df = pd.DataFrame(edge_data, columns=['Edge'])
-    vertices += [''] * (max_length - len(vertices))
-    edge_data += [''] * (max_length - len(edge_data))
+    vertices += [""] * (max_length - len(vertices))
+    edge_data += [""] * (max_length - len(edge_data))
 
-    data = {
-        'Vertices': vertices,
-        'Edges': edge_data
-    }
+    data = {"Vertices": vertices, "Edges": edge_data}
 
     # Create a pandas DataFrame
     df = pd.DataFrame(data)

@@ -2,6 +2,7 @@ import os, io
 import streamlit as st
 import webbrowser
 
+
 def redirect_to_url(url):
     js = f"window.location.href='{url}'"
     html = f"<script>{js}</script>"
@@ -40,13 +41,19 @@ def main():
             new_file.write(file_contents)
             temp_file_path = new_file.name
             with right_column:
-                st.write('')
-                st.write('')
+                st.write("")
+                st.write("")
                 st.code(f"File Name: {input_file.name}")
                 st.code(f"File Size: {len(file_contents)} bytes")
         container = st.sidebar.container()
         with container:
-            st.text_area(f"{input_file.name}", file_contents, height=400, key="readonly_textarea", disabled=True)
+            st.text_area(
+                f"{input_file.name}",
+                file_contents,
+                height=400,
+                key="readonly_textarea",
+                disabled=True,
+            )
         run_main()
         download_json()
 
@@ -73,11 +80,11 @@ def download_json():
     
     <h1 class="title">Download Json File</h1>
     """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
     file = "converted.json"
 
-    col1, col2 = st.columns([0.3,1])
+    col1, col2 = st.columns([0.3, 1])
     with col1:
         if os.path.isfile(file):
             st.download_button(
@@ -89,9 +96,28 @@ def download_json():
         else:
             st.write("JSON file not found.")
     with col2:
-        if st.button("Langflow"):
-            url = "http://137.135.90.38:7860/"
-            webbrowser.open_new_tab(url=url)
+        url = "http://137.135.90.38:7860/"
+        st.markdown(
+            f"""
+        <a href={url}><button style="display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    min-height: 38.4px;
+    margin: 0px;
+    line-height: 1.6;
+    color: white;
+    width: auto;
+    user-select: none;
+    background-color: rgb(19, 23, 32);
+    border: 1px solid rgba(250, 250, 250, 0.2);;">Langflow</button></a>
+        """,
+            unsafe_allow_html=True,
+        )
 
 
 if __name__ == "__main__":

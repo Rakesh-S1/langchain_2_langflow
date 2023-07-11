@@ -16,7 +16,7 @@ from langchain_to_langflow import (
     get_vertex_arguments,
     is_instance_from_langchain,
     all_vertex_info,
-    print_vertex_and_edges
+    print_vertex_and_edges,
 )
 
 # input file path
@@ -48,8 +48,6 @@ all_instances = []
 for name, obj in custom_module.__dict__.items():
     if is_instance_from_langchain(type(obj), "langchain") and not isinstance(obj, type):
         all_instances.append(obj)
-
-
 
 
 # base json
@@ -164,6 +162,7 @@ edges = get_edge(all_vertex_info)
 base_class["data"]["edges"] = edges
 # pprint(all_vertex_info, sort_dicts=False)
 print_vertex_and_edges(edges, all_instances, function_list1)
+
 
 class SetEncoder(json.JSONEncoder):
     def default(self, obj):
